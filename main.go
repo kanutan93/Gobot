@@ -2,6 +2,7 @@ package main
 
 import (
 	"time"
+	"fmt"
 )
 
 func check(err error) {
@@ -11,9 +12,12 @@ func check(err error) {
 }
 
 func main() {
+	coords := readCoordsConf("coords.json")
 	for {
-		CreateScreenshot("ss.png")
-		GetPointsBox("ss.png", "points-box.png")
+		createScreenshot("ss.png")
+		hpBox, mpBox := getPointsBoxes("ss.png", &coords)
+		boxes := map[string]string{"hp": hpBox, "mp": mpBox}
+		fmt.Println(recognizeText(boxes))
 		time.Sleep(1 * time.Second)
 	}
 }
