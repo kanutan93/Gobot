@@ -44,12 +44,13 @@ func createScreenshot(filename string) {
 	fmt.Println("Screenshot created at: " + time.Now().String())
 }
 
-func getPointsBoxes(filename string, coords *BoxesCoords) (string, string) {
+func getPoints(filename string, coords *BoxesCoords) map[string]string {
 	image := opencv.LoadImage(filename)
 	defer image.Release()
 	hpBox := getBoxFilename("hpBox.png", image, &coords.HpBox)
 	mpBox := getBoxFilename("mpBox.png", image, &coords.MpBox)
-	return hpBox, mpBox
+	boxes:= map[string]string{"hp": hpBox, "mp": mpBox}
+	return boxes
 }
 
 func getBoxFilename(croppedFilename string, image *opencv.IplImage, boxCoords *BoxCoords) string {
