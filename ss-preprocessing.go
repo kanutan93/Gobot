@@ -18,6 +18,7 @@ const (
 	hpImageFilename = "hpImage.png"
 	mpImageFilename = "mpImage.png"
 	targetsImageFilename = "targets.png"
+	colorConf = "color.json"
 )
 
 type BoxesCoords struct {
@@ -32,12 +33,26 @@ type BoxCoords struct {
 	Height int
 }
 
+type Color struct {
+	Lower []float64
+	Upper []float64
+	ColorIndent float64
+}
+
 func readCoordsConf(filename string) BoxesCoords {
 	coordsConfig, err := ioutil.ReadFile(filename)
 	check(err)
 	var coords BoxesCoords
 	json.Unmarshal([]byte(coordsConfig), &coords)
 	return coords
+}
+
+func readColorConf(filename string) Color {
+	colorConfig, err := ioutil.ReadFile(filename)
+	check(err)
+	var color Color
+	json.Unmarshal([]byte(colorConfig), &color)
+	return color
 }
 
 func createScreenshot(filename string) {
@@ -75,25 +90,25 @@ func recognizePoints(points map[string]string) map[string]string {
 
 func drawTargetBox(img *opencv.IplImage, x int, y int) {
 	opencv.Rectangle(img,
-		opencv.Point{x, y},
-		opencv.Point{x + 100, y + 100},
+		opencv.Point{x - 75, y + 50},
+		opencv.Point{x + 50, y + 150},
 		opencv.NewScalar(170, 255, 102, 255),
 		3, 4, 0)
 }
 
-func findTarget(filename string) map[string]int{
+func findTarget(filename string, color *Color) map[string]int{
 	img := opencv.LoadImage(filename)
 	defer img.Release()
 
 	coords := map[string]int{"x": 0, "y": 0} //83 127 65
-	colorUpper := [4]float64{255, 255, 64, 0} //верхняя граница зеленого цвета
-	colorLower := [4]float64{6, 100, 29, 0} //нижняя граница зеленого цвета
+	colorUpper := [4]float64{color.Upper[0], color.Upper[1], color.Upper[2], 0} //верхняя граница зеленого цвета BGR
+	colorLower := [4]float64{color.Lower[0], color.Lower[1], color.Lower[2], 0} //нижняя граница зеленого цвета BGR
 
 	for x := 0; x < img.Width(); x++ {
 		for y := 0; y < img.Height(); y++ {
 			scalar := img.Get2D(x, y)
 			scalarArray := scalar.Val() //Массив пикселей изображения
-			if((scalarArray[0] < scalarArray[1] - 50) && (scalarArray[1] > scalarArray[2] - 50)){ // Если зеленого больше
+			if((scalarArray[0] < scalarArray[1] - 70) && (scalarArray[1] > scalarArray[2] - 70)){ // Если зеленого больше
 				if (scalarArray[0] >= colorLower[0]) && (scalarArray[0] <= colorUpper[0]) { //, то ищем пиксель в заданном выше диапозоне
 					if (scalarArray[1] >= colorLower[1]) && (scalarArray[1] <= colorUpper[1]) {
 						if (scalarArray[2] >= colorLower[2]) && (scalarArray[2] <= colorUpper[2]) {
