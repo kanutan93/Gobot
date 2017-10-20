@@ -85,7 +85,7 @@ func findTarget(filename string) map[string]int{
 	img := opencv.LoadImage(filename)
 	defer img.Release()
 
-	coords := map[string]int{"x": 0, "y": 0}
+	coords := map[string]int{"x": 0, "y": 0} //83 127 65
 	colorUpper := [4]float64{255, 255, 64, 0} //верхняя граница зеленого цвета
 	colorLower := [4]float64{6, 100, 29, 0} //нижняя граница зеленого цвета
 
