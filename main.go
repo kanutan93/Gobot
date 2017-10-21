@@ -24,7 +24,7 @@ func main() {
 	for {
 		createScreenshot(mainScreenshot)
 		points := getPoints(mainScreenshot, &coords)
-		doAction(recognizePoints(points), "test2.jpg", &color) //FIXME поменять на mainScreenshot
+		doAction(recognizePoints(points), mainScreenshot, &color) //FIXME поменять на mainScreenshot
 		time.Sleep(1 * time.Second)
 	}
 }
