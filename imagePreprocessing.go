@@ -90,7 +90,7 @@ func findTarget(filename string, color *Color) map[string]int{
 		for y := 0; y < img.Height(); y++ {
 			scalar := img.Get2D(x, y)
 			scalarArray := scalar.Val() //Массив пикселей изображения
-			if((scalarArray[0] < scalarArray[1] - 70) && (scalarArray[1] > scalarArray[2] - 70)){ // Если зеленого больше
+			if((scalarArray[0] < scalarArray[1] - color.ColorIndent) && (scalarArray[1] > scalarArray[2] - color.ColorIndent)){ // Если зеленого больше
 				if (scalarArray[0] >= colorLower[0]) && (scalarArray[0] <= colorUpper[0]) { //, то ищем пиксель в заданном выше диапозоне
 					if (scalarArray[1] >= colorLower[1]) && (scalarArray[1] <= colorUpper[1]) {
 						if (scalarArray[2] >= colorLower[2]) && (scalarArray[2] <= colorUpper[2]) {
