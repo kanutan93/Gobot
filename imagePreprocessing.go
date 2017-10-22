@@ -1,13 +1,7 @@
 package main
 
 import (
-	"github.com/vova616/screenshot"
 	"github.com/lazywei/go-opencv/opencv"
-	"image"
-	"os"
-	"image/png"
-	"time"
-	"fmt"
 	"github.com/otiai10/gosseract"
 	"strings"
 	"io/ioutil"
@@ -15,16 +9,10 @@ import (
 )
 
 const (
-	hpImageFilename = "hpImage.png"
-	mpImageFilename = "mpImage.png"
+	textBoxFilename = "textBox.png"
 	targetsImageFilename = "targets.png"
 	colorConf = "color.json"
 )
-
-type BoxesCoords struct {
-	HpBox BoxCoords
-	MpBox BoxCoords
-}
 
 type BoxCoords struct {
 	X      int
@@ -33,45 +21,39 @@ type BoxCoords struct {
 	Height int
 }
 
+type ColorConfig struct {
+	Green Color
+	White Color
+}
+
 type Color struct {
 	Lower []float64
 	Upper []float64
 	ColorIndent float64
 }
 
-func readCoordsConf(filename string) BoxesCoords {
-	coordsConfig, err := ioutil.ReadFile(filename)
+func readCoordsConf(filename string) BoxCoords {
+	coordsJson, err := ioutil.ReadFile(filename)
 	check(err)
-	var coords BoxesCoords
-	json.Unmarshal([]byte(coordsConfig), &coords)
+	var coords BoxCoords
+	json.Unmarshal([]byte(coordsJson), &coords)
 	return coords
 }
 
-func readColorConf(filename string) Color {
-	colorConfig, err := ioutil.ReadFile(filename)
+func readColorConf(filename string) ColorConfig {
+	colorJson, err := ioutil.ReadFile(filename)
 	check(err)
-	var color Color
-	json.Unmarshal([]byte(colorConfig), &color)
-	return color
+	var colorConfig ColorConfig
+	json.Unmarshal([]byte(colorJson), &colorConfig)
+	return colorConfig
 }
 
-func createScreenshot(filename string) {
-	img, err := screenshot.CaptureScreen()
-	check(err)
-	myImg := image.Image(img)
-	file, err := os.Create(filename)
-	check(err)
-	png.Encode(file, myImg)
-	fmt.Println("Screenshot created at: " + time.Now().String())
-}
-
-func getPoints(filename string, coords *BoxesCoords) map[string]string {
+func getText(filename string, coords *BoxCoords) map[string]string {
 	img := opencv.LoadImage(filename)
 	defer img.Release()
-	hpImage := getBoxFilename(hpImageFilename, img, &coords.HpBox)
-	mpImage := getBoxFilename(mpImageFilename, img, &coords.MpBox)
-	points := map[string]string{"hp": hpImage, "mp": mpImage}
-	return points
+	textImage := getBoxFilename(textBoxFilename, img, coords)
+	text := map[string]string{"text": textImage}
+	return text
 }
 
 func getBoxFilename(pointsImageFilename string, image *opencv.IplImage, boxCoords *BoxCoords) string {
@@ -90,8 +72,8 @@ func recognizePoints(points map[string]string) map[string]string {
 
 func drawTargetBox(img *opencv.IplImage, x int, y int) {
 	opencv.Rectangle(img,
-		opencv.Point{x - 75, y + 50},
-		opencv.Point{x + 50, y + 150},
+		opencv.Point{x - 30, y},
+		opencv.Point{x, y + 30},
 		opencv.NewScalar(170, 255, 102, 255),
 		3, 4, 0)
 }
@@ -100,7 +82,7 @@ func findTarget(filename string, color *Color) map[string]int{
 	img := opencv.LoadImage(filename)
 	defer img.Release()
 
-	coords := map[string]int{"x": 0, "y": 0} //83 127 65
+	coords := map[string]int{"x": 0, "y": 0}
 	colorUpper := [4]float64{color.Upper[0], color.Upper[1], color.Upper[2], 0} //верхняя граница зеленого цвета BGR
 	colorLower := [4]float64{color.Lower[0], color.Lower[1], color.Lower[2], 0} //нижняя граница зеленого цвета BGR
 

@@ -2,11 +2,12 @@ package main
 import (
 	"time"
 	"runtime"
+	"fmt"
 )
 
 const (
 	coordsConfig = "coords.json"
-	mainScreenshot = "ss.png"
+	mainImageFilename = "test.jpg"
 )
 
 func check(err error) {
@@ -18,13 +19,10 @@ func check(err error) {
 func main() {
 	cores := runtime.NumCPU()
 	runtime.GOMAXPROCS(cores)
-
-	coords := readCoordsConf(coordsConfig)
-	color := readColorConf(colorConf)
-	for {
-		createScreenshot(mainScreenshot)
-		points := getPoints(mainScreenshot, &coords)
-		doAction(recognizePoints(points), mainScreenshot, &color) //FIXME поменять на mainScreenshot
-		time.Sleep(1 * time.Second)
-	}
+	coordsConfig := readCoordsConf(coordsConfig)
+	colorConfig := readColorConf(colorConf)
+	points := getText(mainImageFilename, &coordsConfig)
+	coords := findTarget(mainImageFilename, &colorConfig.Green)
+	fmt.Println(coords, recognizePoints(points))
+	time.Sleep(1 * time.Second)
 }
