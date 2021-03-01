@@ -1,14 +1,15 @@
 # Gobot
-Пример работы с OpenCV и Tesseract
+ Computer vision prototype written on Golang. 
+ In this project i've used OpenCV and Tesseract.
 
-### Описание
-1. color.json - конфигурация диапозона необходимых цветов
-2. coords.json - конфигурация координат
-3. test.jpg - изображение для обработки
+### Description
+1. color.json - range of excepted colors
+2. coords.json - coords
+3. test.jpg - test picture
 
-### Запуск
+### Start
 ```zsh
 ./main
 ```
 
-Результат в targets.png
+Results in targets.png
